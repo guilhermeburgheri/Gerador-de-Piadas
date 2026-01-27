@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+type Joke = {
+  id: number;
+  type: string;
+  setup: string;
+  punchline: string;
+};
+
+export default function App() {
+  const [joke, setJoke] = useState<Joke | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadJoke() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        "https://official-joke-api.appspot.com/random_joke"
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data: Joke = await response.json();
+      setJoke(data);
+    } catch (err) {
+      console.error(err);
+      setError("Não foi possível carregar uma piada agora.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadJoke();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div style={{ padding: "2rem" }}>
+      <h1>Teste da "Official Joke API"</h1>
 
-export default App
+      <button onClick={loadJoke} disabled={loading} style={{ marginBottom: 16 }}>
+        {loading ? "Carregando..." : "Gerar outra piada"}
+      </button>
+
+      {error && <p style={{ color: "crimson" }}>{error}</p>}
+
+      {joke ? (
+        <>
+          <p>
+            <strong>{joke.setup}</strong>
+          </p>
+          <p>{joke.punchline}</p>
+        </>
+      ) : (
+        !error && <p>Nenhuma piada carregada ainda.</p>
+      )}
+    </div>
+  );
+}
