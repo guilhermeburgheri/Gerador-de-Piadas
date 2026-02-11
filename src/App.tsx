@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 type Joke = {
   id: number;
@@ -40,25 +41,23 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Teste da "Official Joke API"</h1>
+    <div className="container">
+      <div className="card">
+        <h1>😂 Random Joke</h1>
 
-      <button onClick={loadJoke} disabled={loading} style={{ marginBottom: 16 }}>
-        {loading ? "Carregando..." : "Gerar outra piada"}
-      </button>
+        <button onClick={loadJoke} disabled={loading}>
+          {loading ? "Carregando..." : "Gerar outra piada"}
+        </button>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+        {error && <p className="error">{error}</p>}
 
-      {joke ? (
-        <>
-          <p>
-            <strong>{joke.setup}</strong>
-          </p>
-          <p>{joke.punchline}</p>
-        </>
-      ) : (
-        !error && <p>Nenhuma piada carregada ainda.</p>
-      )}
+        {joke && (
+          <div className="joke">
+            <p className="setup">{joke.setup}</p>
+            <p className="punchline">{joke.punchline}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
